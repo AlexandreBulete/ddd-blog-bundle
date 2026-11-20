@@ -1,0 +1,37 @@
+blog:
+    menu:
+        root: Blog
+
+    slug:
+        label: Slug
+        help: "L'adresse de la page (mon-article). Laissé vide, il est tiré du titre."
+        format: "Minuscules, chiffres et tirets, sans tiret au début ni à la fin."
+
+    post:
+        index: Articles
+        title: Titre
+        excerpt: Chapô
+        excerpt_help: "Le résumé montré dans les listes et les partages. 500 caractères au plus."
+        body: Contenu
+        categories: Catégories
+        categories_help: "La première est la catégorie principale."
+        tags: Tags
+        tags_help: "Séparés par des virgules. Un tag inconnu est créé."
+        status: Statut
+        status_draft: Brouillon
+        status_published: Publié
+        status_scheduled: Programmé
+        status_archived: Archivé
+        published_at: Date de publication
+        published_at_help: "Vide : maintenant. Une date à venir programme la publication."
+        featured: À la une
+
+    category:
+        index: Catégories
+        name: Nom
+        description: Description
+
+    tag:
+        index: Tags
+        name: Nom
+        name_help: "Le slug ne change pas : les liens vers la page du tag restent valides."

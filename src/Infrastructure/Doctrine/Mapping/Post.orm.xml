@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                  https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <entity name="AlexandreBulete\DddBlogBundle\Domain\Model\Post" table="blog_post">
+        <indexes>
+            <!-- The public listing: visible posts, most recent first. -->
+            <index columns="status,published_at"/>
+        </indexes>
+        <id name="id" type="blog_post_id"/>
+        <field name="title" type="string" length="200"/>
+        <field name="slug" type="blog_slug" length="190" unique="true"/>
+        <field name="excerpt" type="text" nullable="true"/>
+        <field name="body" type="text"/>
+        <field name="authorId" type="blog_author_id" column="author_id" nullable="true"/>
+        <field name="status" type="string" length="20" enum-type="AlexandreBulete\DddBlogBundle\Domain\Model\PostStatus"/>
+        <field name="publishedAt" type="datetime_immutable" column="published_at" nullable="true"/>
+        <field name="featured" type="boolean"/>
+        <field name="categoryIds" type="blog_category_ids" column="category_ids"/>
+        <field name="tagIds" type="blog_tag_ids" column="tag_ids"/>
+        <field name="createdAt" type="datetime_immutable" column="created_at"/>
+        <field name="updatedAt" type="datetime_immutable" column="updated_at" nullable="true"/>
+    </entity>
+</doctrine-mapping>

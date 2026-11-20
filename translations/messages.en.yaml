@@ -1,0 +1,37 @@
+blog:
+    menu:
+        root: Blog
+
+    slug:
+        label: Slug
+        help: "The page address (my-post). Left blank, it is derived from the title."
+        format: "Lowercase letters, digits and hyphens, no hyphen at either end."
+
+    post:
+        index: Posts
+        title: Title
+        excerpt: Excerpt
+        excerpt_help: "The summary shown in lists and shares. 500 characters at most."
+        body: Content
+        categories: Categories
+        categories_help: "The first one is the main category."
+        tags: Tags
+        tags_help: "Comma-separated. An unknown tag is created."
+        status: Status
+        status_draft: Draft
+        status_published: Published
+        status_scheduled: Scheduled
+        status_archived: Archived
+        published_at: Publication date
+        published_at_help: "Blank: now. A date ahead schedules the publication."
+        featured: Featured
+
+    category:
+        index: Categories
+        name: Name
+        description: Description
+
+    tag:
+        index: Tags
+        name: Name
+        name_help: "The slug does not change: links to the tag page keep working."
