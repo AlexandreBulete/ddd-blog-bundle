@@ -16,6 +16,9 @@ use AlexandreBulete\DddBlogBundle\Domain\Event\PostSlugChanged;
 use AlexandreBulete\DddBlogBundle\Domain\Event\PostTagged;
 use AlexandreBulete\DddBlogBundle\Domain\Event\PostUnfeatured;
 use AlexandreBulete\DddBlogBundle\Domain\Event\PostUnpublished;
+use AlexandreBulete\DddBlogBundle\Domain\Exception\ArchivedPostException;
+use AlexandreBulete\DddBlogBundle\Domain\Exception\EmptyPostException;
+use AlexandreBulete\DddBlogBundle\Domain\Exception\PublishedPostException;
 use AlexandreBulete\DddBlogBundle\Domain\ValueObject\AuthorId;
 use AlexandreBulete\DddBlogBundle\Domain\ValueObject\CategoryId;
 use AlexandreBulete\DddBlogBundle\Domain\ValueObject\PostId;
@@ -126,7 +129,7 @@ final class Post
             return;
         }
         if ($this->status === PostStatus::Published && trim($body) === '') {
-            throw new \DomainException('A published post cannot be emptied: unpublish it first.');
+            throw new EmptyPostException('A published post cannot be emptied: unpublish it first.');
         }
 
         $this->body = $body;
@@ -175,7 +178,7 @@ final class Post
     public function publish(?\DateTimeImmutable $publishAt, \DateTimeImmutable $now): void
     {
         if (trim($this->body) === '') {
-            throw new \DomainException('An empty post cannot be published.');
+            throw new EmptyPostException();
         }
 
         $publishedAt = $publishAt ?? $now;
@@ -231,7 +234,7 @@ final class Post
             return;
         }
         if ($this->status === PostStatus::Archived) {
-            throw new \DomainException('An archived post cannot be featured.');
+            throw new ArchivedPostException();
         }
 
         $this->featured = true;
@@ -258,7 +261,7 @@ final class Post
     public function delete(): void
     {
         if ($this->status === PostStatus::Published) {
-            throw new \DomainException('A published post cannot be deleted: unpublish or archive it first.');
+            throw new PublishedPostException();
         }
 
         $this->recordEvent(new PostDeleted((string) $this->id, $this->slug->value()));

@@ -1,0 +1,4 @@
+blog:
+    slug:
+        taken: "Ce slug est déjà pris : {{ slug }}. Choisissez-en un autre."
+        format: "Minuscules, chiffres et tirets, sans tiret au début ni à la fin."

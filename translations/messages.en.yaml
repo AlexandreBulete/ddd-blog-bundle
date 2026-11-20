@@ -5,7 +5,6 @@ blog:
     slug:
         label: Slug
         help: "The page address (my-post). Left blank, it is derived from the title."
-        format: "Lowercase letters, digits and hyphens, no hyphen at either end."
 
     post:
         index: Posts

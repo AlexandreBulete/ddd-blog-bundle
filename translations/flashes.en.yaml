@@ -1,0 +1,7 @@
+domain_refusal:
+    slug_already_used_exception: "This slug is already taken: %slug%."
+    still_in_use_exception: "\"%name%\" cannot be removed: %posts% post(s) still use it."
+    unknown_category_exception: "A chosen category no longer exists. Reload the page."
+    empty_post_exception: "An empty post cannot be published, nor emptied once published."
+    published_post_exception: "A published post cannot be deleted: unpublish or archive it first."
+    archived_post_exception: "An archived post cannot be featured."

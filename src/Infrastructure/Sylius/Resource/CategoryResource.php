@@ -11,6 +11,7 @@ use AlexandreBulete\DddBlogBundle\Infrastructure\Sylius\State\Processor\DeleteCa
 use AlexandreBulete\DddBlogBundle\Infrastructure\Sylius\State\Processor\UpdateCategoryProcessor;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Sylius\State\Provider\CategoryItemProvider;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Symfony\Form\Type\CategoryType;
+use AlexandreBulete\DddBlogBundle\Infrastructure\Symfony\Validator\UniqueSlug;
 use Sylius\Resource\Metadata\AsResource;
 use Sylius\Resource\Metadata\Create;
 use Sylius\Resource\Metadata\Delete;
@@ -34,6 +35,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Index(grid: CategoryGrid::class),
     ],
 )]
+#[UniqueSlug('category')]
 final class CategoryResource implements ResourceInterface
 {
     public function __construct(

@@ -5,7 +5,6 @@ blog:
     slug:
         label: Slug
         help: "L'adresse de la page (mon-article). Laissé vide, il est tiré du titre."
-        format: "Minuscules, chiffres et tirets, sans tiret au début ni à la fin."
 
     post:
         index: Articles

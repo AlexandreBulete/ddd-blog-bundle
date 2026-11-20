@@ -12,6 +12,7 @@ use AlexandreBulete\DddBlogBundle\Infrastructure\Sylius\State\Processor\DeletePo
 use AlexandreBulete\DddBlogBundle\Infrastructure\Sylius\State\Processor\UpdatePostProcessor;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Sylius\State\Provider\PostItemProvider;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Symfony\Form\Type\PostType;
+use AlexandreBulete\DddBlogBundle\Infrastructure\Symfony\Validator\UniqueSlug;
 use Sylius\Resource\Metadata\AsResource;
 use Sylius\Resource\Metadata\Create;
 use Sylius\Resource\Metadata\Delete;
@@ -42,6 +43,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Index(grid: PostGrid::class),
     ],
 )]
+#[UniqueSlug('post')]
 final class PostResource implements ResourceInterface
 {
     /**

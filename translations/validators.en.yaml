@@ -1,0 +1,4 @@
+blog:
+    slug:
+        taken: "This slug is already taken: {{ slug }}. Pick another one."
+        format: "Lowercase letters, digits and hyphens, no hyphen at either end."

@@ -1,0 +1,7 @@
+domain_refusal:
+    slug_already_used_exception: "Ce slug est déjà pris : %slug%."
+    still_in_use_exception: "Impossible de supprimer « %name% » : %posts% article(s) l'utilisent encore."
+    unknown_category_exception: "Une catégorie choisie n'existe plus. Rechargez la page."
+    empty_post_exception: "Un article vide ne peut pas être publié, ni vidé une fois publié."
+    published_post_exception: "Un article publié ne se supprime pas : dépubliez-le ou archivez-le d'abord."
+    archived_post_exception: "Un article archivé ne peut pas être mis à la une."
