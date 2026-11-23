@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace AlexandreBulete\DddBlogBundle\Infrastructure\Sylius\Grid;
 
+use AlexandreBulete\DddBlogBundle\Infrastructure\Media\PostVisuals;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Sylius\Resource\PostResource;
 use Sylius\Bundle\GridBundle\Builder\ActionGroup\ItemActionGroup;
 use Sylius\Bundle\GridBundle\Builder\ActionGroup\MainActionGroup;
@@ -28,6 +29,7 @@ class PostGrid extends AbstractGrid implements ResourceAwareGridInterface
      */
     public function __construct(
         private readonly array $limits,
+        private readonly ?PostVisuals $visuals = null,
     ) {}
 
     public static function getName(): string
@@ -37,6 +39,9 @@ class PostGrid extends AbstractGrid implements ResourceAwareGridInterface
 
     public function buildGrid(GridBuilderInterface $gridBuilder): void
     {
+        if ($this->visuals !== null) {
+            $gridBuilder->addField(TwigField::create('visualUrl', '@DddMedia/admin/thumbnail.html.twig')->setLabel('blog.post.visual'));
+        }
         $gridBuilder
             ->setProvider(PostGridProvider::class)
             ->setLimits($this->limits)

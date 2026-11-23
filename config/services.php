@@ -32,7 +32,8 @@ return static function (ContainerConfigurator $container): void {
             $src . '/Infrastructure/Doctrine/Index',
             $src . '/Infrastructure/Doctrine/Mapping',
             $src . '/Infrastructure/Doctrine/IndexMapping',
-            // Conditional: services_migrations.php, services_admin.php.
+            // Conditional: services_migrations.php, services_admin.php, services_media.php.
+            $src . '/Infrastructure/Media',
             $src . '/Infrastructure/Doctrine/Migrations',
             $src . '/Infrastructure/Sylius',
             $src . '/Infrastructure/Symfony/Form',

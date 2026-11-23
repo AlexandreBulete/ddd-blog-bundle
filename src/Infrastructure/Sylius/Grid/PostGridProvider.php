@@ -44,10 +44,7 @@ final readonly class PostGridProvider implements DataProviderInterface
             withSorting: $sorting,
         ));
 
-        $data = [];
-        foreach ($models as $model) {
-            $data[] = $this->resources->forList($model);
-        }
+        $data = $this->resources->forList($models);
 
         return new Pagerfanta(new FixedAdapter($models->count(), $data));
     }

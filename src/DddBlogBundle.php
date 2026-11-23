@@ -11,6 +11,8 @@ use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Type\PostIdType;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Type\SlugType;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Type\TagIdListType;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Type\TagIdType;
+use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Type\VisualIdType;
+use AlexandreBulete\DddMediaBundle\DddMediaBundle;
 use Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -67,6 +69,9 @@ final class DddBlogBundle extends AbstractBundle
         if (self::migrationsEnabled($builder)) {
             $container->import($this->getPath() . '/config/services_migrations.php');
         }
+        if (self::mediaEnabled($builder)) {
+            $container->import($this->getPath() . '/config/services_media.php');
+        }
     }
 
     public function prependExtension(ContainerConfigurator $container, ContainerBuilder $builder): void
@@ -89,6 +94,7 @@ final class DddBlogBundle extends AbstractBundle
                     CategoryIdType::NAME => CategoryIdType::class,
                     TagIdType::NAME => TagIdType::class,
                     AuthorIdType::NAME => AuthorIdType::class,
+                    VisualIdType::NAME => VisualIdType::class,
                     SlugType::NAME => SlugType::class,
                     CategoryIdListType::NAME => CategoryIdListType::class,
                     TagIdListType::NAME => TagIdListType::class,
@@ -128,6 +134,18 @@ final class DddBlogBundle extends AbstractBundle
                 'mapping' => ['paths' => [$this->getPath() . '/src/Infrastructure/Sylius/Resource']],
             ]);
         }
+    }
+
+    /**
+     * Post visuals need alexandrebulete/ddd-media-bundle, an optional
+     * dependency.
+     */
+    private static function mediaEnabled(ContainerBuilder $builder): bool
+    {
+        /** @var array<string, class-string> $bundles */
+        $bundles = $builder->getParameter('kernel.bundles');
+
+        return in_array(DddMediaBundle::class, $bundles, true);
     }
 
     /**

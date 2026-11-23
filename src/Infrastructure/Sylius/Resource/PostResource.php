@@ -19,6 +19,7 @@ use Sylius\Resource\Metadata\Delete;
 use Sylius\Resource\Metadata\Index;
 use Sylius\Resource\Metadata\Update;
 use Sylius\Resource\Model\ResourceInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Uid\AbstractUid;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -68,6 +69,12 @@ final class PostResource implements ResourceInterface
         public bool $featured = false,
         public ?\DateTimeImmutable $updatedAt = null,
         public ?string $statusLabel = null,
+        // The visual, when the media bundle is installed: a new picture to
+        // upload, or the current one taken off.
+        public ?UploadedFile $visualFile = null,
+        public bool $removeVisual = false,
+        public ?string $visualUrl = null,
+        public ?string $visualId = null,
     ) {}
 
     public function getId(): ?AbstractUid
@@ -92,6 +99,7 @@ final class PostResource implements ResourceInterface
             publishAt: $post->publishedAt,
             featured: $post->featured,
             updatedAt: $post->updatedAt ?? $post->createdAt,
+            visualId: $post->visual === null ? null : (string) $post->visual,
             statusLabel: 'blog.post.status_' . ($post->isScheduledAt($now) ? 'scheduled' : $post->status->value),
         );
     }

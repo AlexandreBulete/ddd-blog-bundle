@@ -6,6 +6,8 @@ namespace AlexandreBulete\DddBlogBundle\Tests\Integration;
 
 use AlexandreBulete\DddBlogBundle\Application\Command\CategorizePost\CategorizePostCommand;
 use AlexandreBulete\DddBlogBundle\Application\Command\CategorizePost\CategorizePostHandler;
+use AlexandreBulete\DddBlogBundle\Application\Command\ChangePostVisual\ChangePostVisualCommand;
+use AlexandreBulete\DddBlogBundle\Application\Command\ChangePostVisual\ChangePostVisualHandler;
 use AlexandreBulete\DddBlogBundle\Application\Command\CreateCategory\CreateCategoryCommand;
 use AlexandreBulete\DddBlogBundle\Application\Command\CreateCategory\CreateCategoryHandler;
 use AlexandreBulete\DddBlogBundle\Application\Command\DraftPost\DraftPostCommand;
@@ -37,6 +39,7 @@ use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\DoctrineTagRepository;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Text\AsciiSlugGenerator;
 use AlexandreBulete\DddBlogBundle\Tests\Integration\Fixture\NullEventPublisher;
 use Doctrine\ORM\EntityManagerInterface;
+use AlexandreBulete\DddBlogBundle\Domain\ValueObject\VisualId;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Clock\MockClock;
@@ -215,6 +218,20 @@ final class PublishingTest extends TestCase
 
         self::assertSame(5, $page->count());
         self::assertSame(['Article 3', 'Article 2'], array_map(static fn (Post $p): string => $p->title, iterator_to_array($page, false)));
+    }
+
+    #[Test]
+    public function the_posts_headed_by_a_visual_are_found_by_it(): void
+    {
+        $visual = VisualId::generate();
+        foreach (['Second', 'Premier'] as $title) {
+            (new ChangePostVisualHandler($this->posts, $this->clock))(new ChangePostVisualCommand($this->draft($title)->id, $visual));
+        }
+        $this->draft('Sans visuel');
+        $this->em->clear();
+
+        self::assertSame(['Premier', 'Second'], array_map(static fn (Post $post): string => $post->title, $this->posts->withVisual($visual)));
+        self::assertSame([], $this->posts->withVisual(VisualId::generate()));
     }
 
     /**

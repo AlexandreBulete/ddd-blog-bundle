@@ -6,6 +6,7 @@ namespace AlexandreBulete\DddBlogBundle\Infrastructure\Sylius\State\Processor;
 
 use AlexandreBulete\DddBlogBundle\Application\Command\DeletePost\DeletePostCommand;
 use AlexandreBulete\DddBlogBundle\Domain\ValueObject\PostId;
+use AlexandreBulete\DddBlogBundle\Infrastructure\Media\PostVisuals;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Sylius\Resource\PostResource;
 use AlexandreBulete\DddFoundation\Application\Command\CommandBusInterface;
 use Sylius\Resource\Context\Context;
@@ -18,6 +19,7 @@ final readonly class DeletePostProcessor implements ProcessorInterface
 {
     public function __construct(
         private CommandBusInterface $commandBus,
+        private ?PostVisuals $visuals = null,
     ) {}
 
     public function process(mixed $data, Operation $operation, Context $context): mixed
@@ -25,6 +27,10 @@ final readonly class DeletePostProcessor implements ProcessorInterface
         Assert::isInstanceOf($data, PostResource::class);
         Assert::isInstanceOf($data->id, Ulid::class);
         $this->commandBus->dispatch(new DeletePostCommand(PostId::fromUlid($data->id)));
+        // Its picture leaves with it, unless something else still shows it.
+        if ($this->visuals !== null && $data->visualId !== null) {
+            $this->visuals->release($data->visualId);
+        }
 
         return null;
     }

@@ -8,6 +8,11 @@ blog:
 
     post:
         index: Articles
+        visual: Visuel
+        visual_help: "JPEG, PNG, WebP. L'image en tête de l'article ; une nouvelle remplace l'actuelle."
+        remove_visual: Retirer le visuel
+        visual_alt: "Illustration de l'article « %title% »"
+        visual_usage: "le visuel de l'article « %title% »"
         title: Titre
         excerpt: Chapô
         excerpt_help: "Le résumé montré dans les listes et les partages. 500 caractères au plus."

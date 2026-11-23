@@ -12,12 +12,14 @@ use AlexandreBulete\DddBlogBundle\Domain\ValueObject\CategoryId;
 use AlexandreBulete\DddBlogBundle\Domain\ValueObject\PostId;
 use AlexandreBulete\DddBlogBundle\Domain\ValueObject\Slug;
 use AlexandreBulete\DddBlogBundle\Domain\ValueObject\TagId;
+use AlexandreBulete\DddBlogBundle\Domain\ValueObject\VisualId;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Index\PostCategoryLink;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Index\PostTagLink;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Type\CategoryIdType;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Type\PostIdType;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Type\SlugType;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Type\TagIdType;
+use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Type\VisualIdType;
 use AlexandreBulete\DddDoctrineBridge\DoctrineRepository;
 use AlexandreBulete\DddFoundation\Domain\ValueObject\IdentifierVO;
 use Doctrine\DBAL\Types\Types;
@@ -132,6 +134,21 @@ final class DoctrinePostRepository extends DoctrineRepository implements PostRep
     public function countTaggedWith(TagId $tagId): int
     {
         return $this->countIndex(PostTagLink::class, 'tagId', $tagId, TagIdType::NAME);
+    }
+
+    public function withVisual(VisualId $visual): array
+    {
+        /** @var list<Post> $posts */
+        $posts = $this->em->createQueryBuilder()
+            ->select(self::ALIAS)
+            ->from(Post::class, self::ALIAS)
+            ->where(self::ALIAS . '.visual = :visual')
+            ->setParameter('visual', $visual, VisualIdType::NAME)
+            ->orderBy(self::ALIAS . '.title', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $posts;
     }
 
     public function countVisibleByCategory(\DateTimeImmutable $now): array

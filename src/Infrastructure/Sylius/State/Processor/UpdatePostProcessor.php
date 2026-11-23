@@ -14,6 +14,7 @@ use AlexandreBulete\DddBlogBundle\Domain\Model\Post;
 use AlexandreBulete\DddBlogBundle\Domain\ValueObject\CategoryId;
 use AlexandreBulete\DddBlogBundle\Domain\ValueObject\PostId;
 use AlexandreBulete\DddBlogBundle\Domain\ValueObject\Slug;
+use AlexandreBulete\DddBlogBundle\Infrastructure\Media\PostVisuals;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Sylius\Resource\PostResource;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Sylius\Resource\PostResourceFactory;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Sylius\State\Processor\PostStatusTransition;
@@ -36,6 +37,7 @@ final readonly class UpdatePostProcessor implements ProcessorInterface
         private QueryBusInterface $queryBus,
         private PostStatusTransition $transition,
         private PostResourceFactory $resources,
+        private ?PostVisuals $visuals = null,
     ) {}
 
     public function process(mixed $data, Operation $operation, Context $context): PostResource
@@ -70,6 +72,9 @@ final readonly class UpdatePostProcessor implements ProcessorInterface
             $post = $this->commandBus->dispatch(new TagPostCommand($id, $data->tagNames()));
         }
         $post = $this->transition->apply($post, $data);
+        if ($this->visuals !== null) {
+            $post = $this->visuals->change($post, $data->visualFile, $data->removeVisual);
+        }
 
         return $this->resources->fromModel($post);
     }

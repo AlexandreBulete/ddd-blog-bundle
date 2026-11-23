@@ -8,6 +8,11 @@ blog:
 
     post:
         index: Posts
+        visual: Visual
+        visual_help: "JPEG, PNG, WebP. The picture heading the post; a new one replaces the current one."
+        remove_visual: Take the visual off
+        visual_alt: "Illustration of the post \"%title%\""
+        visual_usage: "the visual of the post \"%title%\""
         title: Title
         excerpt: Excerpt
         excerpt_help: "The summary shown in lists and shares. 500 characters at most."

@@ -8,6 +8,7 @@ use AlexandreBulete\DddBlogBundle\Domain\Model\Post;
 use AlexandreBulete\DddBlogBundle\Domain\ValueObject\CategoryId;
 use AlexandreBulete\DddBlogBundle\Domain\ValueObject\Slug;
 use AlexandreBulete\DddBlogBundle\Domain\ValueObject\TagId;
+use AlexandreBulete\DddBlogBundle\Domain\ValueObject\VisualId;
 use AlexandreBulete\DddFoundation\Domain\Repository\RepositoryInterface;
 
 /**
@@ -38,6 +39,13 @@ interface PostRepositoryInterface extends RepositoryInterface
     public function countFiledUnder(CategoryId $categoryId): int;
 
     public function countTaggedWith(TagId $tagId): int;
+
+    /**
+     * The posts headed by this picture, whatever their status.
+     *
+     * @return list<Post>
+     */
+    public function withVisual(VisualId $visual): array;
 
     /**
      * How many posts the public may read at that instant, per category; the

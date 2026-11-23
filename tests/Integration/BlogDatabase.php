@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AlexandreBulete\DddBlogBundle\Tests\Integration;
 
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Migrations\Version20261120100000;
+use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Migrations\Version20261123180000;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Type\AuthorIdType;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Type\CategoryIdListType;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Type\CategoryIdType;
@@ -12,6 +13,7 @@ use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Type\PostIdType;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Type\SlugType;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Type\TagIdListType;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Type\TagIdType;
+use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Type\VisualIdType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Tools\DsnParser;
@@ -78,14 +80,16 @@ final class BlogDatabase
      */
     private static function runMigration(Connection $connection): void
     {
-        $migration = new Version20261120100000($connection, new NullLogger());
-        $schemaManager = $connection->createSchemaManager();
-        $from = $schemaManager->introspectSchema();
-        $to = clone $from;
-        $migration->up($to);
+        foreach ([Version20261120100000::class, Version20261123180000::class] as $class) {
+            $migration = new $class($connection, new NullLogger());
+            $schemaManager = $connection->createSchemaManager();
+            $from = $schemaManager->introspectSchema();
+            $to = clone $from;
+            $migration->up($to);
 
-        foreach ($connection->getDatabasePlatform()->getAlterSchemaSQL($schemaManager->createComparator()->compareSchemas($from, $to)) as $sql) {
-            $connection->executeStatement($sql);
+            foreach ($connection->getDatabasePlatform()->getAlterSchemaSQL($schemaManager->createComparator()->compareSchemas($from, $to)) as $sql) {
+                $connection->executeStatement($sql);
+            }
         }
     }
 
@@ -99,6 +103,7 @@ final class BlogDatabase
             SlugType::NAME => SlugType::class,
             CategoryIdListType::NAME => CategoryIdListType::class,
             TagIdListType::NAME => TagIdListType::class,
+            VisualIdType::NAME => VisualIdType::class,
         ] as $name => $class) {
             if (!Type::hasType($name)) {
                 Type::addType($name, $class);

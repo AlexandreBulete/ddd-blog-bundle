@@ -16,6 +16,7 @@ use AlexandreBulete\DddBlogBundle\Domain\Event\PostSlugChanged;
 use AlexandreBulete\DddBlogBundle\Domain\Event\PostTagged;
 use AlexandreBulete\DddBlogBundle\Domain\Event\PostUnfeatured;
 use AlexandreBulete\DddBlogBundle\Domain\Event\PostUnpublished;
+use AlexandreBulete\DddBlogBundle\Domain\Event\PostVisualChanged;
 use AlexandreBulete\DddBlogBundle\Domain\Exception\ArchivedPostException;
 use AlexandreBulete\DddBlogBundle\Domain\Exception\EmptyPostException;
 use AlexandreBulete\DddBlogBundle\Domain\Exception\PublishedPostException;
@@ -24,6 +25,7 @@ use AlexandreBulete\DddBlogBundle\Domain\ValueObject\CategoryId;
 use AlexandreBulete\DddBlogBundle\Domain\ValueObject\PostId;
 use AlexandreBulete\DddBlogBundle\Domain\ValueObject\Slug;
 use AlexandreBulete\DddBlogBundle\Domain\ValueObject\TagId;
+use AlexandreBulete\DddBlogBundle\Domain\ValueObject\VisualId;
 use AlexandreBulete\DddFoundation\Domain\Model\RecordsEvents;
 
 /**
@@ -63,6 +65,7 @@ final class Post
         private(set) array $tagIds,
         private(set) \DateTimeImmutable $createdAt,
         private(set) ?\DateTimeImmutable $updatedAt,
+        private(set) ?VisualId $visual = null,
     ) {}
 
     public static function draft(
@@ -251,6 +254,21 @@ final class Post
         $this->featured = false;
         $this->touch($at);
         $this->recordEvent(new PostUnfeatured((string) $this->id));
+    }
+
+    /**
+     * Any status: a published post may change its picture, or lose it.
+     */
+    public function changeVisual(?VisualId $visual, \DateTimeImmutable $at): void
+    {
+        if ($visual === $this->visual || ($visual !== null && $this->visual !== null && $visual->equals($this->visual))) {
+            return;
+        }
+
+        $previous = $this->visual;
+        $this->visual = $visual;
+        $this->touch($at);
+        $this->recordEvent(new PostVisualChanged((string) $this->id, $visual === null ? null : (string) $visual, $previous === null ? null : (string) $previous));
     }
 
     /**

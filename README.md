@@ -24,7 +24,7 @@ ddd-sylius-bundle.
 
 | Aggregate | Holds |
 |---|---|
-| `Post` | title, slug, excerpt, Markdown body, author id, status, publication date, featured, category ids, tag ids |
+| `Post` | title, slug, excerpt, Markdown body, author id, status, publication date, featured, category ids, tag ids, visual id |
 | `Category` | name, slug, description — flat, no hierarchy |
 | `Tag` | name, slug — created the first time a post is tagged with it |
 
@@ -35,6 +35,8 @@ ddd-sylius-bundle.
   Public reads always ask "visible now?" (`Post::isVisibleAt()`).
 - **Author** is an identifier from the application's identity context (an IAM
   user id), with no foreign key: the blog does not know who users are.
+- **Visual** is an identifier of a picture kept elsewhere (a media library),
+  with no foreign key either.
 - A published post cannot be emptied or deleted (unpublish or archive first);
   a category or tag still carried by posts cannot be removed.
 
@@ -42,7 +44,8 @@ ddd-sylius-bundle.
 
 Commands: `DraftPost`, `RetitlePost`, `ChangePostSlug`, `RewritePost`,
 `CategorizePost`, `TagPost`, `PublishPost` (now or `publishAt`),
-`UnpublishPost`, `ArchivePost`, `FeaturePost`, `UnfeaturePost`, `DeletePost`;
+`UnpublishPost`, `ArchivePost`, `FeaturePost`, `UnfeaturePost`,
+`ChangePostVisual`, `DeletePost`;
 `CreateCategory`, `RenameCategory`, `DescribeCategory`, `ChangeCategorySlug`,
 `RemoveCategory`; `RenameTag`, `RemoveTag`.
 
@@ -78,6 +81,26 @@ granted through roles by an IAM.
 `blog_markdown` is CommonMark + GitHub Flavored Markdown. Raw HTML is escaped
 and unsafe links dropped: an author writes Markdown, not HTML, and the output
 prints as is. `h2`/`h3` get ids, which `blog_toc()` links to.
+
+## Visuals
+
+With [alexandrebulete/ddd-media-bundle](https://github.com/AlexandreBulete/ddd-media-bundle)
+installed, the post form gets a picture field and the grid a thumbnail; the
+picture goes to the media library, and the post keeps its id. Without it,
+posts have no picture field — everything else is the same.
+
+```twig
+{% set visual = media(post.visual) %}
+{% if visual %}
+    <img src="{{ media_url(visual, 'post_banner') }}" alt="{{ visual.alt }}">
+{% endif %}
+```
+
+`post_banner` stands for any LiipImagine filter set the application
+declares. A picture sent from a post's form belongs to that post: replacing
+it, taking it off or deleting the post takes it out of the library, unless
+something else shows it. The library refuses to delete a picture still
+heading a post.
 
 ## Configuration
 

@@ -26,6 +26,6 @@ return static function (ContainerConfigurator $container): void {
     $services->load('AlexandreBulete\\DddBlogBundle\\Infrastructure\\Symfony\\Form\\', $src . '/Infrastructure/Symfony/Form/');
 
     foreach ([PostGrid::class, CategoryGrid::class, TagGrid::class] as $grid) {
-        $services->set($grid)->args([param('blog.admin.grid_limits')]);
+        $services->set($grid)->arg('$limits', param('blog.admin.grid_limits'));
     }
 };

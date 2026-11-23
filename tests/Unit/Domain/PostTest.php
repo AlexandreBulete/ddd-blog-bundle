@@ -7,11 +7,13 @@ namespace AlexandreBulete\DddBlogBundle\Tests\Unit\Domain;
 use AlexandreBulete\DddBlogBundle\Domain\Event\PostCategorized;
 use AlexandreBulete\DddBlogBundle\Domain\Event\PostDrafted;
 use AlexandreBulete\DddBlogBundle\Domain\Event\PostPublished;
+use AlexandreBulete\DddBlogBundle\Domain\Event\PostVisualChanged;
 use AlexandreBulete\DddBlogBundle\Domain\Model\Post;
 use AlexandreBulete\DddBlogBundle\Domain\Model\PostStatus;
 use AlexandreBulete\DddBlogBundle\Domain\ValueObject\CategoryId;
 use AlexandreBulete\DddBlogBundle\Domain\ValueObject\PostId;
 use AlexandreBulete\DddBlogBundle\Domain\ValueObject\Slug;
+use AlexandreBulete\DddBlogBundle\Domain\ValueObject\VisualId;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -164,6 +166,25 @@ final class PostTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         Post::draft(PostId::generate(), '   ', Slug::fromString('x'), '', null, null, $this->now);
+    }
+
+    #[Test]
+    public function a_visual_change_is_recorded_only_when_the_visual_changes(): void
+    {
+        $post = $this->draft();
+        $post->releaseEvents();
+        $visual = VisualId::generate();
+
+        $post->changeVisual($visual, $this->now);
+        $post->changeVisual(VisualId::fromString((string) $visual), $this->now);
+        $post->changeVisual(null, $this->now);
+        $post->changeVisual(null, $this->now);
+
+        $events = $post->releaseEvents();
+        self::assertCount(2, $events);
+        self::assertInstanceOf(PostVisualChanged::class, $events[1]);
+        self::assertSame((string) $visual, $events[1]->previousVisualId);
+        self::assertNull($post->visual);
     }
 
     private function draft(): Post

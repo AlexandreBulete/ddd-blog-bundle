@@ -7,6 +7,8 @@
         <indexes>
             <!-- The public listing: visible posts, most recent first. -->
             <index columns="status,published_at"/>
+            <!-- Which posts show a picture, before the library deletes it. -->
+            <index columns="visual_id"/>
         </indexes>
         <id name="id" type="blog_post_id"/>
         <field name="title" type="string" length="200"/>
@@ -21,5 +23,6 @@
         <field name="tagIds" type="blog_tag_ids" column="tag_ids"/>
         <field name="createdAt" type="datetime_immutable" column="created_at"/>
         <field name="updatedAt" type="datetime_immutable" column="updated_at" nullable="true"/>
+        <field name="visual" type="blog_visual_id" column="visual_id" nullable="true"/>
     </entity>
 </doctrine-mapping>
