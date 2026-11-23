@@ -40,6 +40,14 @@ interface PostRepositoryInterface extends RepositoryInterface
     public function countTaggedWith(TagId $tagId): int;
 
     /**
+     * How many posts the public may read at that instant, per category; the
+     * categories without any are left out.
+     *
+     * @return array<string, int> category id (string form) => visible posts
+     */
+    public function countVisibleByCategory(\DateTimeImmutable $now): array;
+
+    /**
      * Visible posts closest to this one: sharing the most categories and
      * tags, then the most recent. Never the post itself.
      *

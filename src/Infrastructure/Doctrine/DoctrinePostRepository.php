@@ -134,6 +134,26 @@ final class DoctrinePostRepository extends DoctrineRepository implements PostRep
         return $this->countIndex(PostTagLink::class, 'tagId', $tagId, TagIdType::NAME);
     }
 
+    public function countVisibleByCategory(\DateTimeImmutable $now): array
+    {
+        $qb = $this->em->createQueryBuilder()
+            ->select('l.categoryId AS categoryId', 'COUNT(l.postId) AS posts')
+            ->from(PostCategoryLink::class, 'l')
+            ->from(Post::class, 'p')
+            ->where('p.id = l.postId')
+            ->groupBy('l.categoryId');
+        self::whereVisible($qb, 'p', $now);
+
+        /** @var list<array{categoryId: CategoryId, posts: int|string}> $rows */
+        $rows = $qb->getQuery()->getResult();
+        $counts = [];
+        foreach ($rows as $row) {
+            $counts[(string) $row['categoryId']] = (int) $row['posts'];
+        }
+
+        return $counts;
+    }
+
     /**
      * Scored in PHP from the two indexes (one point per shared category or
      * tag), then the candidates loaded at once; topped up with the most recent

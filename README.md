@@ -56,6 +56,7 @@ Public queries (`#[PublicAccess]`, open to any visitor, signed in or not):
 | `FindPublishedPosts` | a listing: all, by category, by tag, featured — paginated, most recent first |
 | `FindPublishedPost` | one post by slug; a draft or a scheduled post is *not found* |
 | `FindRelatedPosts` | "read also": sharing the most categories and tags, topped up with the latest |
+| `FindPublishedCategories` | the categories holding visible posts, with their count, by name: a category menu that never leads to an empty page |
 | `FindCategoryBySlug`, `FindTagBySlug` | resolve a URL segment (404 when unknown) |
 | `FindCategoriesByIds`, `FindTagsByIds` | the categories and tags of a post, in its order |
 

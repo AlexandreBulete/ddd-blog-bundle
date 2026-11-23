@@ -14,6 +14,9 @@ use AlexandreBulete\DddBlogBundle\Application\Command\PublishPost\PublishPostCom
 use AlexandreBulete\DddBlogBundle\Application\Command\PublishPost\PublishPostHandler;
 use AlexandreBulete\DddBlogBundle\Application\Command\RemoveCategory\RemoveCategoryCommand;
 use AlexandreBulete\DddBlogBundle\Application\Command\RemoveCategory\RemoveCategoryHandler;
+use AlexandreBulete\DddBlogBundle\Application\Query\FindPublishedCategories\FindPublishedCategoriesHandler;
+use AlexandreBulete\DddBlogBundle\Application\Query\FindPublishedCategories\FindPublishedCategoriesQuery;
+use AlexandreBulete\DddBlogBundle\Application\Query\FindPublishedCategories\PublishedCategory;
 use AlexandreBulete\DddBlogBundle\Application\Query\FindPublishedPost\FindPublishedPostHandler;
 use AlexandreBulete\DddBlogBundle\Application\Query\FindPublishedPost\FindPublishedPostQuery;
 use AlexandreBulete\DddBlogBundle\Application\Query\FindPublishedPosts\FindPublishedPostsHandler;
@@ -94,6 +97,29 @@ final class PublishingTest extends TestCase
         self::assertSame(['Un seul', 'Les deux'], $this->titles(new FindPublishedPostsQuery(categoryId: $novels->id)));
         self::assertSame(['Les deux'], $this->titles(new FindPublishedPostsQuery(categoryId: $essays->id)));
         self::assertSame(2, $this->posts->countFiledUnder($novels->id));
+    }
+
+    #[Test]
+    public function only_categories_with_visible_posts_are_browsable(): void
+    {
+        $novels = $this->category('Romans');
+        $essays = $this->category('Essais');
+        $this->category('Vide');
+        $this->publish($this->draft('Un roman', [$novels->id]));
+        $this->publish($this->draft('Un autre', [$novels->id, $essays->id]));
+        $this->publish($this->draft('Plus tard', [$essays->id]), $this->clock->now()->modify('+1 day'));
+        $this->draft('Brouillon', [$essays->id]);
+        $this->em->clear();
+
+        $published = (new FindPublishedCategoriesHandler($this->posts, $this->categories, $this->clock))(new FindPublishedCategoriesQuery());
+
+        self::assertSame(
+            ['Essais' => 1, 'Romans' => 2],
+            array_combine(
+                array_map(static fn (PublishedCategory $c): string => $c->category->name, $published),
+                array_map(static fn (PublishedCategory $c): int => $c->posts, $published),
+            ),
+        );
     }
 
     #[Test]
