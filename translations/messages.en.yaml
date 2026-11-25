@@ -1,4 +1,17 @@
 blog:
+    ui:
+        posts: Posts
+        post: post
+        new_post: New post
+        edit_post: Edit post
+        categories: Categories
+        category: category
+        new_category: New category
+        edit_category: Edit category
+        tags: Tags
+        tag: tag
+        new_tag: New tag
+        edit_tag: Edit tag
     menu:
         root: Blog
 
