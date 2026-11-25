@@ -1,3 +1,12 @@
+## [1.2.1] - 2026-11-25
+
+### 🐛 Bug Fixes
+
+- Translated back-office titles
+
+### 📚 Documentation
+
+- Update CHANGELOG.md for 1.2.0
 ## [1.2.0] - 2026-11-23
 
 ### 🚀 Features
