@@ -1,3 +1,12 @@
+## [1.3.0] - 2026-11-26
+
+### 🚀 Features
+
+- Search the published posts
+
+### 📚 Documentation
+
+- Update CHANGELOG.md for 1.2.1
 ## [1.2.1] - 2026-11-25
 
 ### 🐛 Bug Fixes
