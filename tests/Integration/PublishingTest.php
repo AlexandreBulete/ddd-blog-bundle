@@ -71,6 +71,20 @@ final class PublishingTest extends TestCase
     }
 
     #[Test]
+    public function a_search_finds_published_posts_by_every_word_title_first(): void
+    {
+        $this->publish($this->draft('Lire en été', body: 'Les romans de la plage.'));
+        $this->publish($this->draft('Romans d\'hiver', body: 'Pour l\'été aussi, à lire.'));
+        $this->publish($this->draft('Poésie', body: 'Rien à voir.'));
+        $this->draft('Été en brouillon', body: 'Lire plus tard.');
+
+        self::assertSame(['Lire en été', 'Romans d\'hiver'], $this->titles(new FindPublishedPostsQuery(search: 'ÉTÉ lire')));
+        self::assertSame(['Romans d\'hiver', 'Lire en été'], $this->titles(new FindPublishedPostsQuery(search: 'romans')));
+        self::assertSame([], $this->titles(new FindPublishedPostsQuery(search: 'été poésie')));
+        self::assertCount(0, $this->published(new FindPublishedPostsQuery(search: ' a ')));
+    }
+
+    #[Test]
     public function a_scheduled_post_appears_when_its_date_passes(): void
     {
         $post = $this->draft('Bientôt');
@@ -238,12 +252,12 @@ final class PublishingTest extends TestCase
      * @param list<CategoryId> $categoryIds
      * @param list<string>     $tags
      */
-    private function draft(string $title, array $categoryIds = [], array $tags = []): Post
+    private function draft(string $title, array $categoryIds = [], array $tags = [], string $body = 'Quelques mots.'): Post
     {
         $slugger = new AsciiSlugGenerator();
 
         return (new DraftPostHandler($this->posts, $slugger, new CategoryGuard($this->categories), new TagResolver($this->tags, $slugger), $this->clock))(
-            new DraftPostCommand(title: $title, body: 'Quelques mots.', categoryIds: $categoryIds, tags: $tags),
+            new DraftPostCommand(title: $title, body: $body, categoryIds: $categoryIds, tags: $tags),
         );
     }
 

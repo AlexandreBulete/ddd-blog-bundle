@@ -25,6 +25,9 @@ final readonly class FindPublishedPostsHandler
         if ($query->tagId !== null) {
             $posts = $posts->taggedWith($query->tagId);
         }
+        if ($query->search !== null && trim($query->search) !== '') {
+            $posts = $posts->matching($query->search);
+        }
         if ($query->featuredOnly) {
             $posts = $posts->featuredOnly();
         }

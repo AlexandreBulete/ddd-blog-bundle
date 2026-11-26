@@ -26,5 +26,6 @@ final readonly class FindPublishedPostsQuery implements QueryInterface
         public ?CategoryId $categoryId = null,
         public ?TagId $tagId = null,
         public bool $featuredOnly = false,
+        public ?string $search = null,
     ) {}
 }

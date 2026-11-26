@@ -34,6 +34,13 @@ interface PostRepositoryInterface extends RepositoryInterface
 
     public function taggedWith(TagId $tagId): static;
 
+    /**
+     * The posts where every word of the search appears — title, excerpt or
+     * text, accents and case aside — those with every word in the title
+     * first. A search without a word of two letters or more finds nothing.
+     */
+    public function matching(string $search): static;
+
     public function featuredOnly(): static;
 
     public function countFiledUnder(CategoryId $categoryId): int;

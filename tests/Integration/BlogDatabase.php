@@ -6,6 +6,7 @@ namespace AlexandreBulete\DddBlogBundle\Tests\Integration;
 
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Migrations\Version20261120100000;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Migrations\Version20261123180000;
+use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Migrations\Version20261126130000;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Type\AuthorIdType;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Type\CategoryIdListType;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Type\CategoryIdType;
@@ -80,7 +81,7 @@ final class BlogDatabase
      */
     private static function runMigration(Connection $connection): void
     {
-        foreach ([Version20261120100000::class, Version20261123180000::class] as $class) {
+        foreach ([Version20261120100000::class, Version20261123180000::class, Version20261126130000::class] as $class) {
             $migration = new $class($connection, new NullLogger());
             $schemaManager = $connection->createSchemaManager();
             $from = $schemaManager->introspectSchema();
@@ -90,6 +91,7 @@ final class BlogDatabase
             foreach ($connection->getDatabasePlatform()->getAlterSchemaSQL($schemaManager->createComparator()->compareSchemas($from, $to)) as $sql) {
                 $connection->executeStatement($sql);
             }
+            $migration->postUp($to);
         }
     }
 

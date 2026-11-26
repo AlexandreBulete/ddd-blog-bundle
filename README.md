@@ -56,7 +56,7 @@ Public queries (`#[PublicAccess]`, open to any visitor, signed in or not):
 
 | Query | For |
 |---|---|
-| `FindPublishedPosts` | a listing: all, by category, by tag, featured — paginated, most recent first |
+| `FindPublishedPosts` | a listing: all, by category, by tag, featured, matching a search — paginated, most recent first |
 | `FindPublishedPost` | one post by slug; a draft or a scheduled post is *not found* |
 | `FindRelatedPosts` | "read also": sharing the most categories and tags, topped up with the latest |
 | `FindPublishedCategories` | the categories holding visible posts, with their count, by name: a category menu that never leads to an empty page |
@@ -128,6 +128,13 @@ whole with it. Two index tables, `blog_post_category` and `blog_post_tag`,
 are rewritten from it on every save, in the same transaction: filtering
 by category or tag is an indexed `EXISTS`, portable to PostgreSQL, MySQL and
 SQLite.
+
+A third, `blog_post_search`, holds each post's title and text as a search
+looks them up: lowercase ASCII, punctuation as spaces. `search` on
+`FindPublishedPosts` finds the posts where every word (two letters or more)
+appears, accents and case aside — "ete" finds "Été" — those with every word
+in the title first; a search without such a word finds nothing. A `LIKE` per word: right for a blog's hundreds of posts,
+not for a search engine's millions.
 
 ## Development
 

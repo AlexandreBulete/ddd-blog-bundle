@@ -14,7 +14,9 @@ use AlexandreBulete\DddBlogBundle\Domain\ValueObject\Slug;
 use AlexandreBulete\DddBlogBundle\Domain\ValueObject\TagId;
 use AlexandreBulete\DddBlogBundle\Domain\ValueObject\VisualId;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Index\PostCategoryLink;
+use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Index\PostSearchText;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Index\PostTagLink;
+use AlexandreBulete\DddBlogBundle\Infrastructure\Search\SearchText;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Type\CategoryIdType;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Type\PostIdType;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\Type\SlugType;
@@ -24,6 +26,8 @@ use AlexandreBulete\DddDoctrineBridge\DoctrineRepository;
 use AlexandreBulete\DddFoundation\Domain\ValueObject\IdentifierVO;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query\Expr\Join;
+use Doctrine\ORM\Query\Expr\OrderBy;
 use Doctrine\ORM\QueryBuilder;
 
 /**
@@ -44,6 +48,7 @@ final class DoctrinePostRepository extends DoctrineRepository implements PostRep
     private const string ALIAS = 'post';
     private const string CATEGORY_INDEX = 'blog_post_category';
     private const string TAG_INDEX = 'blog_post_tag';
+    private const string SEARCH_INDEX = 'blog_post_search';
 
     public function __construct(
         EntityManagerInterface $em,
@@ -58,6 +63,7 @@ final class DoctrinePostRepository extends DoctrineRepository implements PostRep
             $this->em->persist($post);
             $this->em->flush();
             $this->reindex($post->id, $post->categoryIds, $post->tagIds);
+            $this->reindexText($post);
             $this->eventPublisher->publishAll($post->releaseEvents());
         });
     }
@@ -66,6 +72,7 @@ final class DoctrinePostRepository extends DoctrineRepository implements PostRep
     {
         $this->em->wrapInTransaction(function () use ($post): void {
             $this->reindex($post->id, [], []);
+            $this->em->getConnection()->delete(self::SEARCH_INDEX, ['post_id' => $post->id->toRfc4122()]);
             $this->em->remove($post);
             $this->em->flush();
             $this->eventPublisher->publishAll($post->releaseEvents());
@@ -116,6 +123,39 @@ final class DoctrinePostRepository extends DoctrineRepository implements PostRep
                 PostTagLink::class,
                 $alias,
             ))->setParameter('taggedWith', $tagId, TagIdType::NAME);
+        });
+    }
+
+    public function matching(string $search): static
+    {
+        $terms = SearchText::terms($search);
+        if ($terms === []) {
+            // Nothing to look for: nothing found, rather than everything.
+            return $this->constrained(static function (QueryBuilder $qb): void {
+                $qb->andWhere('1 = 0');
+            });
+        }
+
+        return $this->constrained(static function (QueryBuilder $qb, string $alias) use ($terms): void {
+            // One row per post (primary key): the join never duplicates one.
+            $qb->innerJoin(PostSearchText::class, 'search', Join::WITH, "search.postId = {$alias}.id");
+            $inTitle = [];
+            foreach ($terms as $i => $term) {
+                $qb->andWhere("search.title LIKE :term{$i} OR search.content LIKE :term{$i}")
+                    ->setParameter("term{$i}", '%' . $term . '%');
+                $inTitle[] = "search.title LIKE :term{$i}";
+            }
+
+            // Every word in the title first, then the usual order.
+            $orders = $qb->getDQLPart('orderBy');
+            $qb->addSelect(sprintf('CASE WHEN %s THEN 0 ELSE 1 END AS HIDDEN searchRank', implode(' AND ', $inTitle)))
+                ->resetDQLPart('orderBy')
+                ->orderBy('searchRank', 'ASC');
+            foreach (is_array($orders) ? $orders : [] as $order) {
+                if ($order instanceof OrderBy) {
+                    $qb->add('orderBy', $order, true);
+                }
+            }
         });
     }
 
@@ -276,5 +316,18 @@ final class DoctrinePostRepository extends DoctrineRepository implements PostRep
         foreach ($tagIds as $tagId) {
             $connection->insert(self::TAG_INDEX, ['post_id' => $post, 'tag_id' => $tagId->toRfc4122()]);
         }
+    }
+
+    private function reindexText(Post $post): void
+    {
+        $connection = $this->em->getConnection();
+        $id = $post->id->toRfc4122();
+
+        $connection->delete(self::SEARCH_INDEX, ['post_id' => $id]);
+        $connection->insert(self::SEARCH_INDEX, [
+            'post_id' => $id,
+            'title' => mb_substr(SearchText::normalize($post->title), 0, 255),
+            'content' => SearchText::normalize($post->excerpt . ' ' . $post->body),
+        ]);
     }
 }
