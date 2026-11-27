@@ -28,7 +28,7 @@ use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
  * asks the public queries (FindPublishedPosts, FindPublishedPost…) and prints
  * the body with the `blog_markdown` Twig filter.
  *
- * @phpstan-type BlogConfig array{admin: array{enabled: bool, grid_limits: list<int>}}
+ * @phpstan-type BlogConfig array{admin: array{enabled: bool, grid_limits: list<int>}, public_routes: array{post: ?string, category: ?string}}
  */
 final class DddBlogBundle extends AbstractBundle
 {
@@ -51,6 +51,14 @@ final class DddBlogBundle extends AbstractBundle
                         ->end()
                     ->end()
                 ->end()
+                ->arrayNode('public_routes')
+                    ->info('The routes of the public pages, taking a "slug": the back office links to them.')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('post')->defaultNull()->end()
+                        ->scalarNode('category')->defaultNull()->end()
+                    ->end()
+                ->end()
             ->end();
     }
 
@@ -61,6 +69,7 @@ final class DddBlogBundle extends AbstractBundle
     {
         /** @var BlogConfig $config */
         $container->parameters()->set('blog.admin.grid_limits', $config['admin']['grid_limits']);
+        $container->parameters()->set('blog.public_routes', $config['public_routes']);
 
         $container->import($this->getPath() . '/config/services.php');
         if ($config['admin']['enabled']) {

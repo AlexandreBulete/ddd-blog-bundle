@@ -109,6 +109,9 @@ blog:
     admin:
         enabled: true          # Sylius screens; false for a headless setup
         grid_limits: [20, 50, 100]
+    public_routes:             # routes taking a `slug`; the back office prefixes
+        post: blog_post        # the slug field with the address and links to
+        category: blog_category # the published page. Unset: neither.
 ```
 
 ## Seams

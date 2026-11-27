@@ -12,7 +12,10 @@ use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\DoctrinePostRepository
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\DoctrineTagRepository;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Doctrine\ImmediateEventPublisher;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Text\AsciiSlugGenerator;
+use AlexandreBulete\DddBlogBundle\Infrastructure\Symfony\PublicPages;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+
+use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 
 return static function (ContainerConfigurator $container): void {
     $src = dirname(__DIR__) . '/src';
@@ -40,6 +43,8 @@ return static function (ContainerConfigurator $container): void {
         ]);
 
     // ── Ports → adapters ────────────────────────────────────────────────────
+    $services->get(PublicPages::class)->arg('$routes', param('blog.public_routes'));
+
     // Rebind any of these to change behaviour without touching the bundle
     // (an outbox-backed publisher, a slugger that keeps Unicode…).
     $services->alias(PostRepositoryInterface::class, DoctrinePostRepository::class);

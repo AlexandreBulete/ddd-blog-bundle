@@ -10,6 +10,7 @@ use AlexandreBulete\DddBlogBundle\Domain\Model\Tag;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Media\PostVisuals;
 use AlexandreBulete\DddFoundation\Application\Query\QueryBusInterface;
 use Psr\Clock\ClockInterface;
+use AlexandreBulete\DddBlogBundle\Infrastructure\Symfony\PublicPages;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -22,6 +23,7 @@ final readonly class PostResourceFactory
         private QueryBusInterface $queryBus,
         private ClockInterface $clock,
         private TranslatorInterface $translator,
+        private PublicPages $pages,
         private ?PostVisuals $visuals = null,
     ) {}
 
@@ -34,7 +36,12 @@ final readonly class PostResourceFactory
             $names = array_map(static fn (Tag $tag): string => $tag->name, $tags);
         }
 
-        return $this->pictured($this->labelled(PostResource::fromModel($post, $names, $this->clock->now())), $post);
+        $resource = PostResource::fromModel($post, $names, $this->clock->now());
+        if ($post->isVisibleAt($this->clock->now())) {
+            $resource->publicUrl = $this->pages->url('post', $post->slug->value());
+        }
+
+        return $this->pictured($this->labelled($resource), $post);
     }
 
     /**

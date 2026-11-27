@@ -18,6 +18,8 @@ use Sylius\Resource\Metadata\Create;
 use Sylius\Resource\Metadata\Delete;
 use Sylius\Resource\Metadata\Index;
 use Sylius\Resource\Metadata\Update;
+use AlexandreBulete\DddSyliusBundle\Admin\View\AdminRecordInterface;
+use AlexandreBulete\DddSyliusBundle\Admin\View\StatusBadge;
 use Sylius\Resource\Model\ResourceInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Uid\AbstractUid;
@@ -45,7 +47,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     ],
 )]
 #[UniqueSlug('post')]
-final class PostResource implements ResourceInterface
+final class PostResource implements ResourceInterface, AdminRecordInterface
 {
     /**
      * @param list<string> $categoryIds
@@ -75,11 +77,28 @@ final class PostResource implements ResourceInterface
         public bool $removeVisual = false,
         public ?string $visualUrl = null,
         public ?string $visualId = null,
+        public ?string $statusTone = null,
+        public ?string $publicUrl = null,
     ) {}
 
     public function getId(): ?AbstractUid
     {
         return $this->id;
+    }
+
+    public function adminLabel(): ?string
+    {
+        return $this->title;
+    }
+
+    public function adminStatus(): ?StatusBadge
+    {
+        return $this->statusLabel === null ? null : new StatusBadge($this->statusLabel, $this->statusTone ?? StatusBadge::NEUTRAL);
+    }
+
+    public function adminPublicUrl(): ?string
+    {
+        return $this->publicUrl;
     }
 
     /**
@@ -101,6 +120,12 @@ final class PostResource implements ResourceInterface
             updatedAt: $post->updatedAt ?? $post->createdAt,
             visualId: $post->visual === null ? null : (string) $post->visual,
             statusLabel: 'blog.post.status_' . ($post->isScheduledAt($now) ? 'scheduled' : $post->status->value),
+            statusTone: match (true) {
+                $post->isScheduledAt($now) => StatusBadge::INFO,
+                $post->isVisibleAt($now) => StatusBadge::SUCCESS,
+                $post->status === PostStatus::Archived => StatusBadge::WARNING,
+                default => StatusBadge::NEUTRAL,
+            },
         );
     }
 

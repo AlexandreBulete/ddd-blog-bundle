@@ -48,7 +48,7 @@ class PostGrid extends AbstractGrid implements ResourceAwareGridInterface
             ->orderBy('updatedAt', 'desc')
             ->addFilter(StringFilter::create('title', ['title']))
             ->addField(StringField::create('title')->setLabel('blog.post.title')->setSortable(true))
-            ->addField(StringField::create('statusLabel')->setLabel('blog.post.status')->setPath('statusLabel'))
+            ->addField(TwigField::create('status', '@DddSylius/admin/grid/field/status.html.twig')->setLabel('blog.post.status')->setPath('adminStatus'))
             ->addField(DateTimeField::create('publishAt')->setLabel('blog.post.published_at')->setPath('publishAt')->setSortable(true, 'publishedAt'))
             ->addField(TwigField::create('featured', '@SyliusBootstrapAdminUi/shared/grid/field/boolean.html.twig')->setLabel('blog.post.featured')->setSortable(true))
             ->addField(DateTimeField::create('updatedAt')->setLabel('sylius.ui.updated_at')->setSortable(true))

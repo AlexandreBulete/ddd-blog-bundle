@@ -1,4 +1,11 @@
 blog:
+    section:
+        content: Content
+        publication: Publication
+        visual: Visual
+        classification: Classification
+        address: Address
+        category: The category
     ui:
         posts: Posts
         post: post
