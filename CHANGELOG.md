@@ -1,3 +1,12 @@
+## [1.5.0] - 2026-11-27
+
+### 🚀 Features
+
+- A category's name as its page title, with a link to the site
+
+### 📚 Documentation
+
+- Update CHANGELOG.md for 1.4.0
 ## [1.4.0] - 2026-11-27
 
 ### 🚀 Features
