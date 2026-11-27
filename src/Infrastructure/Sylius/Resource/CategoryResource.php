@@ -17,6 +17,8 @@ use Sylius\Resource\Metadata\Create;
 use Sylius\Resource\Metadata\Delete;
 use Sylius\Resource\Metadata\Index;
 use Sylius\Resource\Metadata\Update;
+use AlexandreBulete\DddSyliusBundle\Admin\View\AdminRecordInterface;
+use AlexandreBulete\DddSyliusBundle\Admin\View\StatusBadge;
 use Sylius\Resource\Model\ResourceInterface;
 use Symfony\Component\Uid\AbstractUid;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -36,7 +38,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     ],
 )]
 #[UniqueSlug('category')]
-final class CategoryResource implements ResourceInterface
+final class CategoryResource implements ResourceInterface, AdminRecordInterface
 {
     public function __construct(
         public ?AbstractUid $id = null,
@@ -47,11 +49,27 @@ final class CategoryResource implements ResourceInterface
         public ?string $slug = null,
         #[Assert\Length(max: Category::DESCRIPTION_MAX_LENGTH)]
         public ?string $description = null,
+        public ?string $publicUrl = null,
     ) {}
 
     public function getId(): ?AbstractUid
     {
         return $this->id;
+    }
+
+    public function adminLabel(): ?string
+    {
+        return $this->name;
+    }
+
+    public function adminStatus(): ?StatusBadge
+    {
+        return null;
+    }
+
+    public function adminPublicUrl(): ?string
+    {
+        return $this->publicUrl;
     }
 
     public static function fromModel(Category $category): self

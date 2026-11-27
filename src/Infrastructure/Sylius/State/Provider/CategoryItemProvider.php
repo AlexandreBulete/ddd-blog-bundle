@@ -8,6 +8,7 @@ use AlexandreBulete\DddBlogBundle\Application\Query\FindCategory\FindCategoryQue
 use AlexandreBulete\DddBlogBundle\Domain\ValueObject\CategoryId;
 use AlexandreBulete\DddBlogBundle\Infrastructure\Sylius\Resource\CategoryResource;
 use AlexandreBulete\DddFoundation\Application\Query\QueryBusInterface;
+use AlexandreBulete\DddBlogBundle\Infrastructure\Symfony\PublicPages;
 use Sylius\Resource\Context\Context;
 use Sylius\Resource\Context\Option\RequestOption;
 use Sylius\Resource\Metadata\Operation;
@@ -17,6 +18,7 @@ final readonly class CategoryItemProvider implements ProviderInterface
 {
     public function __construct(
         private QueryBusInterface $queryBus,
+        private PublicPages $pages,
     ) {}
 
     public function provide(Operation $operation, Context $context): ?CategoryResource
@@ -26,8 +28,11 @@ final readonly class CategoryItemProvider implements ProviderInterface
             return null;
         }
 
-        return CategoryResource::fromModel(
+        $resource = CategoryResource::fromModel(
             $this->queryBus->ask(new FindCategoryQuery(CategoryId::fromString($id))),
         );
+        $resource->publicUrl = $resource->slug === null ? null : $this->pages->url('category', $resource->slug);
+
+        return $resource;
     }
 }
